@@ -2,7 +2,7 @@ package Employee
 
 import (
 	"fmt"
-	"strconv"
+	//"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
@@ -18,7 +18,7 @@ const (
 type EmployeeStructDb struct {
 	ID                  uint   `gorm:"primaryKey"`
 	empId               string `gorm:"uniqueIndex;type:char(8);not null"`
-	name                string `json:"Name" gorm:"type:varchar(255);not null"`
+	name                string `json:"name" gorm:"type:varchar(255);not null"`
 	basic               string `json:"Basic" gorm:"type:char(6);not null"`
 	hra                 string `json:"Basic" gorm:"type:char(6);not null"`
 	specialAllowance    string `json:"Basic" gorm:"type:char(6);not null"`
@@ -31,8 +31,18 @@ type EmployeeStructDb struct {
 
 type EmployeeStruct struct {
 	id           uint16
-	Name         string `json:"Name"`
+	name         string `json:"Name"`
 	salaryStruct SalaryStruct
+}
+
+type EmployeeJStruct struct {
+	id                  uint16
+	Name                string `json:"Name"`
+	Basic               string `json:"Basic"`
+	SpecialAllowance    string `json:"SpecialAllowance"`
+	LeaveAllowance      string `json:"LeaveAllowance"`
+	NightshiftAllowance string `json:"NightshiftAllowance"`
+	//employeeStruct      EmployeeStruct
 }
 
 type SalaryStruct struct {
@@ -71,20 +81,42 @@ type EmployeeInf interface {
 }
 
 // function that takes necessary data in order to create object/instance. (receiver function)
-func New(name string, basic uint16, specialAllowance uint16, leaveAllowance uint16, nightshiftAllowance uint16) EmployeeStruct {
-	fmt.Println(basic)
-	var instEmployeeStruct EmployeeStruct
-	instEmployeeStruct.Name = name
-	instEmployeeStruct.salaryStruct.salaryEarnings.basic = basic
-	instEmployeeStruct.salaryStruct.salaryEarnings.specialAllowance = specialAllowance
-	instEmployeeStruct.salaryStruct.salaryEarnings.leaveAllowance = leaveAllowance
-	instEmployeeStruct.salaryStruct.salaryEarnings.nightshiftAllowance = nightshiftAllowance
-	return instEmployeeStruct
+func New(app *fiber.Ctx) (EmployeeJStruct, string) {
+	var responseMsg string
+	instEmployeeJStruct := new(EmployeeJStruct)
+	var instEmployeeJStruct1 = EmployeeJStruct{}
+
+	err := app.BodyParser(instEmployeeJStruct)
+	//Name := instEmployeeJStruct.Name
+	instEmployeeJStruct1.Name = instEmployeeJStruct.Name
+	instEmployeeJStruct1.Basic = instEmployeeJStruct.Basic
+	instEmployeeJStruct1.SpecialAllowance = instEmployeeJStruct.SpecialAllowance
+	instEmployeeJStruct1.LeaveAllowance = instEmployeeJStruct.LeaveAllowance
+	instEmployeeJStruct1.NightshiftAllowance = instEmployeeJStruct.SpecialAllowance
+	log.Info("name1:" + instEmployeeJStruct1.Name + " Basic: " + fmt.Sprint(instEmployeeJStruct.Basic) + fmt.Sprint(instEmployeeJStruct.SpecialAllowance))
+	if err != nil {
+		responseMsg = "Err" + err.Error()
+		return instEmployeeJStruct1, responseMsg
+	}
+	// instEmployeeJStruct.Name = instEmployeeJStruct.Name
+	// instEmployeeJStruct.Basic = instEmployeeJStruct.Basic
+	// instEmployeeJStruct.SpecialAllowance = instEmployeeJStruct.SpecialAllowance
+	// instEmployeeJStruct.LeaveAllowance = instEmployeeJStruct.LeaveAllowance
+	// instEmployeeJStruct.NightshiftAllowance = instEmployeeJStruct.NightshiftAllowance
+	/*
+		instEmployeeJStruct.employeeStruct.name = instEmployeeJStruct.Name
+		instEmployeeJStruct.employeeStruct.salaryStruct.salaryEarnings.basic = instEmployeeJStruct.Basic
+		instEmployeeJStruct.employeeStruct.salaryStruct.salaryEarnings.specialAllowance = instEmployeeJStruct.SpecialAllowance
+		instEmployeeJStruct.employeeStruct.salaryStruct.salaryEarnings.leaveAllowance = instEmployeeJStruct.LeaveAllowance
+		instEmployeeJStruct.employeeStruct.salaryStruct.salaryEarnings.nightshiftAllowance = instEmployeeJStruct.NightshiftAllowance
+	*/
+	return instEmployeeJStruct1, ""
 }
 
-func (instEmployeeStruct EmployeeStruct) GetProfile() string {
-	fmt.Println(instEmployeeStruct.salaryStruct.salaryEarnings.basic)
-	return ("Name of employee is " + instEmployeeStruct.Name + " with basic salary " + strconv.Itoa(int((instEmployeeStruct.salaryStruct.salaryEarnings.basic))))
+func (instEmployeeJStruct EmployeeJStruct) GetProfile() string {
+
+	fmt.Println(instEmployeeJStruct.Basic)
+	return ("name of employee is " + instEmployeeJStruct.Name + " with basic salary " + instEmployeeJStruct.Basic)
 }
 
 func (instEmployeeStruct EmployeeStruct) GetGrossSalary() uint16 {
@@ -184,12 +216,12 @@ func RegisterEmployee(app *fiber.Ctx) error {
 	var responseMsg string
 	instEmployeeStruct := new(EmployeeStruct)
 	err := app.BodyParser(instEmployeeStruct)
-	log.Info("name: " + instEmployeeStruct.Name)
+	log.Info("name: " + instEmployeeStruct.name)
 	if err != nil {
 		responseMsg = "Err" + err.Error()
 		return app.SendString(responseMsg)
 	}
-	responseMsg = "This is from /register post method" + fmt.Sprint(instEmployeeStruct.Name)
+	responseMsg = "This is from /register post method" + fmt.Sprint(instEmployeeStruct.name)
 	log.Info("return srting" + responseMsg)
 	return app.SendString(responseMsg)
 }

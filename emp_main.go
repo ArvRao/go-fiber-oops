@@ -13,10 +13,11 @@ import (
 
 func main() {
 	fmt.Println("Hello world")
-	employeeObj := Employee.New("Arvind", 25000, 10000, 5000, 1000)
-	fmt.Println("Profile method " + employeeObj.GetProfile())
-	fmt.Println("Net Salary is ", employeeObj.GetNetSalary())
-	fmt.Println("total deductions is ", employeeObj.GetDeductions())
+	// employeeObj := Employee.New("Arvind", 25000, 10000, 5000, 1000)
+	// fmt.Println("Profile method " + employeeObj.GetProfile())
+
+	// fmt.Println("Net Salary is ", employeeObj.GetNetSalary())
+	// fmt.Println("total deductions is ", employeeObj.GetDeductions())
 	// employeeObj.GetSalarySlip()
 	// var instAreaShapeRectInf areaShapesInf
 	// var instAreaShapeCircleInf areaShapesInf
@@ -55,9 +56,11 @@ func empRegister() {
 	})
 
 	app.Post("/register", func(c *fiber.Ctx) error {
-		employeeObj := Employee.New("Arvind", 25000, 10000, 5000, 1000)
+		employeeObj, rspMsg := Employee.New(c)
 		empProfile := employeeObj.GetProfile()
-
+		if rspMsg == "Err" {
+			return c.Send([]byte(rspMsg))
+		}
 		return c.Send([]byte(empProfile))
 		// err := Employee.RegisterEmployee(c)
 		// log.Print("error" + fmt.Sprint(err))
